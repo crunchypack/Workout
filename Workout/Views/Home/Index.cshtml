@@ -1,0 +1,64 @@
+﻿@model Workout.Models.ViewModels
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+@if (ViewBag.error != null)
+{
+    <div class="alert-danger">@ViewBag.error</div>
+}
+<div class="text-center">
+    <div>
+        @foreach (var item in Model.users)
+        {
+            <h1>@item.UserName</h1>
+            <p>@item.Email</p>
+            <a asp-action="CreateWorkout">Add new workout</a>
+            <a asp-action="Logout">Logout</a>
+        }
+    </div>
+
+</div>
+<div class="row">
+    @foreach(var item in Model.workouts)
+            {
+                <div class="col">
+                    <h2>@item.TypeOfWorkout</h2>
+                    <p>@item.Date</p>
+                </div>
+            }
+</div>
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+    DELETE
+</button>
+
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete your account ?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure? This cannot be undone.
+            </div>
+            
+                <form asp-action="DeleteUser" autocomplete="off" class="modal-footer">
+                    <div class="form-group">
+                        <label>Password </label><input name="password" type="password" autocomplete="new-password"/>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <input type="submit" value="Delete" class="btn btn-danger" />
+                    </div>
+                </form>
+
+        </div>
+    </div>
+</div>
