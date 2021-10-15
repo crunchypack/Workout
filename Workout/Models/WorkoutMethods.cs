@@ -41,6 +41,68 @@ namespace Workout.Models
                 conn.Close();
             }
         }
+        public int UpdateWorkout(WorkoutInfo workout, out string error)
+        {
+            SqlConnection conn = new()
+            {
+                ConnectionString = "Data Source=(localDB)\\MSSQLLocalDB;Initial Catalog=Workout;Integrated Security=True"
+            };
+            String query = "Update tbl_workout SET wo_date = @date, wo_type = @type WHERE wo_id = @id";
+
+            SqlCommand comm = new(query, conn);
+            comm.Parameters.Add("date", SqlDbType.Date).Value = workout.Date;
+            comm.Parameters.Add("type", SqlDbType.VarChar, 20).Value = workout.TypeOfWorkout;
+            comm.Parameters.Add("id", SqlDbType.Int).Value = workout.WorkoutId;
+
+            error = "";
+            int res = 0;
+            try
+            {
+                conn.Open();
+                res = comm.ExecuteNonQuery();
+                if (res != 1) error = "Unable to update workout";
+                return res;
+            }
+            catch (Exception e)
+            {
+                error = e.Message;
+                return res;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+        public int DeleteWorkout(int id, out string error)
+        {
+            SqlConnection conn = new()
+            {
+                ConnectionString = "Data Source=(localDB)\\MSSQLLocalDB;Initial Catalog=Workout;Integrated Security=True"
+            };
+            String query = "DELETE FROM tbl_workout WHERE wo_id = @id";
+
+            SqlCommand comm = new(query, conn);
+            comm.Parameters.Add("id", SqlDbType.Int).Value = id;
+
+            error = "";
+            int res = 0;
+            try
+            {
+                conn.Open();
+                res = comm.ExecuteNonQuery();
+                if (res != 1) error = "Unable to delete workout";
+                return res;
+            }
+            catch (Exception e)
+            {
+                error = e.Message;
+                return res;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
         public List<WorkoutInfo> GetWorkouts(int id, User u, out string error)
         {
            
