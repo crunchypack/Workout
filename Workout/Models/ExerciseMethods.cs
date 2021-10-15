@@ -108,5 +108,49 @@ namespace Workout.Models
                 conn.Close();
             }
         }
+
+        public List<Exercise> GetExercises (int id,WorkoutInfo w, out string error)
+        {
+            SqlConnection conn = new()
+            {
+                ConnectionString = "Data Source=(localDB)\\MSSQLLocalDB;Initial Catalog=Workout;Integrated Security=True"
+            };
+            String query = "Select * FROM tbl_exersice WHERE ex_workout = @id";
+            SqlCommand comm = new(query, conn);
+            comm.Parameters.Add("id", System.Data.SqlDbType.Int).Value = id;
+
+            error = "";
+            List<Exercise> exercises = new();
+            SqlDataReader read = null;
+
+            try
+            {
+                conn.Open();
+                read = comm.ExecuteReader();
+
+                while (read.Read())
+                {
+                    Exercise exercise = new();
+                    exercise.ExerciseId = Convert.ToInt32(read["ex_id"]);
+                    exercise.Name = read["ex_name"].ToString();
+                    exercise.Category = read["ex_category"].ToString();
+                    exercise.Weight = float.Parse(read["ex_weight"].ToString());
+                    exercise.Muscle = read["ex_muscle"].ToString();
+                    exercise.Workout = w;
+                    exercises.Add(exercise);
+                }
+                read.Close();
+                return exercises;
+
+            }catch(Exception e)
+            {
+                error = e.Message;
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
     }
 }
