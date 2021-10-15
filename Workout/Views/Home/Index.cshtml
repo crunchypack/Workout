@@ -13,8 +13,12 @@
         {
             <h1>@item.UserName</h1>
             <p>@item.Email</p>
-            <a asp-action="CreateWorkout">Add new workout</a>
-            <a asp-action="Logout">Logout</a>
+            <a asp-action="CreateWorkout" class="btn btn-outline-info">Add new workout</a>
+            <a asp-action="Logout" class="btn btn-dark">Logout</a>
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+                Delete Account
+            </button>
         }
     </div>
 
@@ -22,16 +26,14 @@
 <div class="row">
     @foreach(var item in Model.workouts)
             {
-                <div class="col">
-                    <h2>@item.TypeOfWorkout</h2>
-                    <p>@item.Date</p>
-                </div>
+    <div class="col">
+        <h2>@item.TypeOfWorkout</h2>
+        <p>@item.Date</p>
+
+    </div>
             }
 </div>
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
-    DELETE
-</button>
+
 
 
 <!-- Modal -->

@@ -24,17 +24,48 @@ namespace Workout.Models
             comm.Parameters.Add("workout", System.Data.SqlDbType.Int).Value = ex.Workout.WorkoutId;
 
             error = "";
+            int res = 0;
             try
             {
                 conn.Open();
-                int res = 0;
+                
                 res = comm.ExecuteNonQuery();
                 if (res != 1) error = "Unable to add exercise";
                 return res;
             }catch(Exception e)
             {
                 error = e.Message;
-                return 0;
+                return res;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+        public int RemoveExercise(int id, out string error)
+        {
+
+            SqlConnection conn = new()
+            {
+                ConnectionString = "Data Source=(localDB)\\MSSQLLocalDB;Initial Catalog=Workout;Integrated Security=True"
+            };
+            String query = "DELETE FROM tbl_exersice WHERE ex_id = @id";
+            SqlCommand comm = new(query, conn);
+            comm.Parameters.Add("id", System.Data.SqlDbType.Int).Value = id;
+
+            error = "";
+            int res = 0;
+            try
+            {
+                conn.Open();
+                res = comm.ExecuteNonQuery();
+                if (res != 1) error = "Unable to remove exercice";
+                return res;
+                
+            }catch(Exception e)
+            {
+                error = e.Message;
+                return res;
             }
             finally
             {
