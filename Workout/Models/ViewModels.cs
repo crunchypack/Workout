@@ -7,7 +7,8 @@ namespace Workout.Models
 {
     public class ViewModels
     {
-        public IEnumerable<User> users { set; get; }
-        public IEnumerable<WorkoutInfo> workouts { set; get; }
+        public IEnumerable<User> Users { set; get; }
+        public IEnumerable<WorkoutInfo> Workouts { set; get; }
+        public IEnumerable<Exercise> Exercises{ set; get; }
     }
 }

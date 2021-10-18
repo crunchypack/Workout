@@ -30,8 +30,8 @@ namespace Workout.Controllers
             u.Add(logged);
             ViewModels vm = new()
             {
-                users = u,
-                workouts = wm.GetWorkouts(user, logged, out string wError)
+                Users = u,
+                Workouts = wm.GetWorkouts(user, logged, out string wError)
             };
             ViewBag.error = error + wError;
             return View(vm);
@@ -134,6 +134,129 @@ namespace Workout.Controllers
             if (res == 1) return RedirectToAction(nameof(Index));
             else return View();
 
+        }
+        [HttpGet]
+        public IActionResult Workout(int id)
+        {
+            int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
+            if (user == 0) return RedirectToAction(nameof(LogInUser));
+            // DAL
+            WorkoutMethods wm = new();
+            ExerciseMethods em = new();
+            // Workout
+            WorkoutInfo w = wm.GetWorkout(id,user, out string error);
+            List<WorkoutInfo> wos = new();
+            if(w.WorkoutId == 0)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            wos.Add(w);
+            // Models
+            ViewModels vm = new()
+            {
+                Workouts = wos,
+                Exercises = em.GetExercises(id, out string Eerror)
+            };
+            ViewBag.error = error;
+
+            return View(vm);
+        }
+        [HttpGet]
+        public IActionResult EditWorkout (int id)
+        {
+            int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
+            if (user == 0) return RedirectToAction(nameof(LogInUser));
+            WorkoutMethods wm = new();
+            WorkoutInfo w = wm.GetWorkout(id, user, out string error);
+            if (w.WorkoutId == 0)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.error = error;
+            ViewBag.id = id;
+            return View(w);
+
+        }
+        [HttpPost]
+        public IActionResult EditWorkout(IFormCollection fc)
+        {
+            int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
+            if (user == 0) return RedirectToAction(nameof(LogInUser));
+
+            WorkoutMethods wm = new();
+            WorkoutInfo w = new();
+
+            w.Date = Convert.ToDateTime(fc["Date"]);
+            w.TypeOfWorkout = fc["TypeOfWorkout"];
+            w.WorkoutId = Convert.ToInt32(fc["id"]);
+
+            int res = wm.UpdateWorkout(w, out string error);
+            ViewBag.error = w.Date;
+            ViewBag.id = w.WorkoutId;
+
+            if (res != 0)
+            {
+                return RedirectToAction("Workout", new { id = w.WorkoutId});
+            }
+            return View(w);
+
+        }
+        [HttpGet]
+        public IActionResult AddExercise (int id)
+        {
+            int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
+            if (user == 0) return RedirectToAction(nameof(LogInUser));
+            WorkoutMethods wm = new();
+            // Workout
+            WorkoutInfo w = wm.GetWorkout(id, user, out string error);
+            if (w.WorkoutId == 0)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["Workout"] = w;
+            ViewData["Exercise"] = id;
+            return View();
+        }
+        [HttpPost]
+        public IActionResult AddExercise(IFormCollection fc)
+        {
+            int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
+            if (user == 0) return RedirectToAction(nameof(LogInUser));
+
+            ExerciseMethods em = new();
+            Exercise ex = new();
+            string weight = fc["Weight"].ToString().Replace(".", ",");
+            ex.ExerciseId = Convert.ToInt32(fc["Workout"]);
+            ex.Name = fc["Name"];
+            ex.Category = fc["Category"];
+            ex.Weight = Convert.ToDecimal(weight);
+            ex.Muscle = fc["Muscle"];
+            ex.Workout = Convert.ToInt32(fc["Workout"]);
+            ViewData["Exercise"] = ex.Workout;
+
+            int res = em.AddExercise(ex, out string error);
+            
+            ViewBag.error = error;
+
+            if(res == 1) return RedirectToAction(nameof(Index));
+            return View();
+        }
+        [HttpGet]
+        public IActionResult Exercise(int id)
+        {
+            int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
+            if (user == 0) return RedirectToAction(nameof(LogInUser));
+            WorkoutMethods wm = new();
+            List<WorkoutInfo> workouts = wm.GetWorkouts(user, new Models.User(), out string wError);
+            ExerciseMethods em = new();
+            Exercise ex = em.GetExercise(id, out string error);
+            if(!workouts.Any(wo => wo.WorkoutId == ex.Workout))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.error = error;
+
+            return View(ex);
         }
         public IActionResult Privacy()
         {

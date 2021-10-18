@@ -9,7 +9,7 @@
 }
 <div class="text-center">
     <div>
-        @foreach (var item in Model.users)
+        @foreach (var item in Model.Users)
         {
             <h1>@item.UserName</h1>
             <p>@item.Email</p>
@@ -24,11 +24,11 @@
 
 </div>
 <div class="row">
-    @foreach(var item in Model.workouts)
+    @foreach(var item in Model.Workouts)
             {
     <div class="col">
-        <h2>@item.TypeOfWorkout</h2>
-        <p>@item.Date.Date.ToShortDateString()</p>
+        <h2><a href="/Home/Workout/@item.WorkoutId">@item.TypeOfWorkout</a></h2>
+        <p>@item.Date</p>
 
     </div>
             }

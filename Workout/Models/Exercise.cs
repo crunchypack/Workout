@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,8 +12,10 @@ namespace Workout.Models
         public int ExerciseId { set;get;}
         public string Name { set; get; }
         public string Category { set; get; }
-        public float Weight { set; get; }
+        [RegularExpression("^[0-9]*\\.[0-9]{2}$",ErrorMessage ="Numbers with 2 decimals only")]
+        public decimal Weight { set; get; }
         public string Muscle { set; get; }
-        public WorkoutInfo Workout { set; get; }
+        public int Workout { set; get; }
+        
     }
 }

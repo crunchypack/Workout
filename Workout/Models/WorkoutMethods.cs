@@ -19,7 +19,7 @@ namespace Workout.Models
             String query = "INSERT INTO tbl_workout(wo_date,wo_type,wo_user) VALUES(@date,@type,@user)";
 
             SqlCommand comm = new(query, conn);
-            comm.Parameters.Add("date", SqlDbType.Date).Value = workout.Date;
+            comm.Parameters.Add("date", SqlDbType.DateTime).Value = workout.Date;
             comm.Parameters.Add("type", SqlDbType.VarChar, 20).Value = workout.TypeOfWorkout;
             comm.Parameters.Add("user", SqlDbType.Int).Value = workout.User.UserId;
 
@@ -50,7 +50,7 @@ namespace Workout.Models
             String query = "Update tbl_workout SET wo_date = @date, wo_type = @type WHERE wo_id = @id";
 
             SqlCommand comm = new(query, conn);
-            comm.Parameters.Add("date", SqlDbType.Date).Value = workout.Date;
+            comm.Parameters.Add("date", SqlDbType.DateTime).Value = workout.Date;
             comm.Parameters.Add("type", SqlDbType.VarChar, 20).Value = workout.TypeOfWorkout;
             comm.Parameters.Add("id", SqlDbType.Int).Value = workout.WorkoutId;
 
@@ -126,6 +126,7 @@ namespace Workout.Models
                 while (read.Read())
                 {
                     WorkoutInfo w = new();
+                    w.WorkoutId = Convert.ToInt32(read["wo_id"]);
                     w.Date = Convert.ToDateTime(read["wo_date"]);
                     w.TypeOfWorkout = read["wo_type"].ToString();
                     w.User = u;
@@ -141,6 +142,46 @@ namespace Workout.Models
                 err.TypeOfWorkout = "Error";
                 workouts.Add(err);
                 return workouts;
+            }
+        }
+        public WorkoutInfo GetWorkout(int id,int user, out string error)
+        {
+
+            SqlConnection conn = new()
+            {
+                ConnectionString = "Data Source=(localDB)\\MSSQLLocalDB;Initial Catalog=Workout;Integrated Security=True"
+            };
+            String query = "Select * FROM tbl_workout where wo_id= @id AND wo_user = @user";
+
+            SqlCommand comm = new(query, conn);
+            comm.Parameters.Add("id", SqlDbType.Int).Value = id;
+            comm.Parameters.Add("user", SqlDbType.Int).Value = user;
+
+            WorkoutInfo w = new();
+            SqlDataReader read = null;
+            error = "";
+            try
+            {
+                conn.Open();
+                read = comm.ExecuteReader();
+
+                while (read.Read())
+                {
+                    
+                    w.WorkoutId = Convert.ToInt32(read["wo_id"]);
+                    w.Date = Convert.ToDateTime(read["wo_date"]);
+                    w.TypeOfWorkout = read["wo_type"].ToString();
+                    
+                }
+                read.Close();
+                return w;
+
+            }
+            catch (Exception e)
+            {
+                error = e.Message;
+
+                return null;
             }
         }
     }

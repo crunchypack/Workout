@@ -8,20 +8,20 @@ namespace Workout.Models
 {
     public class ExerciseMethods
     {
-        public int AddExercise(Exercise ex,int id, out string error)
+        public int AddExercise(Exercise ex, out string error)
         {
             SqlConnection conn = new()
             {
                 ConnectionString = "Data Source=(localDB)\\MSSQLLocalDB;Initial Catalog=Workout;Integrated Security=True"
             };
-            String query = "Insert Into tbl_exercise(ex_name,ex_category,ex_weight,ex_muscle,ex_workout) VALUES(@name,@cat,@weight,@muscle,@workout)";
+            String query = "Insert Into tbl_exersice(ex_name,ex_category,ex_weight,ex_muscle,ex_workout) VALUES(@name,@cat,@weight,@muscle,@workout)";
             SqlCommand comm = new(query, conn);
 
             comm.Parameters.Add("name", System.Data.SqlDbType.VarChar, 20).Value = ex.Name;
             comm.Parameters.Add("cat", System.Data.SqlDbType.VarChar, 20).Value = ex.Category;
             comm.Parameters.Add("weight", System.Data.SqlDbType.Decimal).Value = ex.Weight;
             comm.Parameters.Add("muscle", System.Data.SqlDbType.VarChar, 20).Value = ex.Muscle;
-            comm.Parameters.Add("workout", System.Data.SqlDbType.Int).Value = ex.Workout.WorkoutId;
+            comm.Parameters.Add("workout", System.Data.SqlDbType.Int).Value = ex.Workout;
 
             error = "";
             int res = 0;
@@ -85,7 +85,7 @@ namespace Workout.Models
             comm.Parameters.Add("cat", System.Data.SqlDbType.VarChar, 20).Value = ex.Category;
             comm.Parameters.Add("weight", System.Data.SqlDbType.Decimal).Value = ex.Weight;
             comm.Parameters.Add("muscle", System.Data.SqlDbType.VarChar, 20).Value = ex.Muscle;
-            comm.Parameters.Add("workout", System.Data.SqlDbType.Int).Value = ex.Workout.WorkoutId;
+            comm.Parameters.Add("workout", System.Data.SqlDbType.Int).Value = ex.Workout;
             comm.Parameters.Add("id", System.Data.SqlDbType.Int).Value = ex.ExerciseId;
 
             error = "";
@@ -109,7 +109,7 @@ namespace Workout.Models
             }
         }
 
-        public List<Exercise> GetExercises (int id,WorkoutInfo w, out string error)
+        public List<Exercise> GetExercises (int id, out string error)
         {
             SqlConnection conn = new()
             {
@@ -134,15 +134,61 @@ namespace Workout.Models
                     exercise.ExerciseId = Convert.ToInt32(read["ex_id"]);
                     exercise.Name = read["ex_name"].ToString();
                     exercise.Category = read["ex_category"].ToString();
-                    exercise.Weight = float.Parse(read["ex_weight"].ToString());
+                    exercise.Weight = Convert.ToDecimal(read["ex_weight"].ToString());
                     exercise.Muscle = read["ex_muscle"].ToString();
-                    exercise.Workout = w;
+                    exercise.Workout = Convert.ToInt32(read["ex_workout"]);
                     exercises.Add(exercise);
                 }
                 read.Close();
                 return exercises;
 
             }catch(Exception e)
+            {
+                error = e.Message;
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+        public Exercise GetExercise(int id, out string error)
+        {
+
+            SqlConnection conn = new()
+            {
+                ConnectionString = "Data Source=(localDB)\\MSSQLLocalDB;Initial Catalog=Workout;Integrated Security=True"
+            };
+            String query = "Select * FROM tbl_exersice WHERE ex_id = @id";
+            SqlCommand comm = new(query, conn);
+            comm.Parameters.Add("id", System.Data.SqlDbType.Int).Value = id;
+
+            error = "";
+            Exercise exercise = new();
+            SqlDataReader read = null;
+
+            try
+            {
+                conn.Open();
+                read = comm.ExecuteReader();
+
+                while (read.Read())
+                {
+                    
+                    exercise.ExerciseId = Convert.ToInt32(read["ex_id"]);
+                    exercise.Name = read["ex_name"].ToString();
+                    exercise.Category = read["ex_category"].ToString();
+                    exercise.Weight = Convert.ToDecimal(read["ex_weight"].ToString());
+                    exercise.Muscle = read["ex_muscle"].ToString();
+                    exercise.Workout = Convert.ToInt32(read["ex_workout"]);
+                    
+                }
+                read.Close();
+                return exercise;
+
+            }
+            catch (Exception e)
             {
                 error = e.Message;
                 return null;

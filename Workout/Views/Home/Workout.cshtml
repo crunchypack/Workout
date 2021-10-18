@@ -1,0 +1,33 @@
+﻿@model Workout.Models.ViewModels
+@{
+    ViewData["Title"] = "Workout";
+    var workout = @Model.Workouts.First();
+}
+
+<h1>Workout</h1>
+
+<div class="container">
+    <h2>@workout.TypeOfWorkout</h2>
+    <p>@workout.Date</p>
+    <div class="card-columns">
+
+
+        @foreach (var ex in Model.Exercises)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title"><a asp-action="Exercise" asp-route-id="@ex.ExerciseId">@ex.Name</a></h4>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">@ex.Category</li>
+                    <li class="list-group-item">@Math.Round(ex.Weight, 2) Kg</li>
+                    <li class="list-group-item">@ex.Muscle</li>
+                </ul>
+            </div>
+        }
+    </div>
+    <a href="/Home/AddExercise/@workout.WorkoutId" class="btn btn-primary">Add Exercise</a>
+    <a href="/Home/EditWorkout/@workout.WorkoutId" class="btn btn-secondary">Edit Workout</a>
+
+</div>
+
