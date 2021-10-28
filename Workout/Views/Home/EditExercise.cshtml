@@ -1,35 +1,28 @@
 ﻿@model Workout.Models.Exercise
 
 @{
-    ViewData["Title"] = "Add Exercise";
-    ViewData["Description"] = "Add your exercise, pick category and then name of exercise ";
-    ViewData["Keywords"] = "exercise, form, save";
+    ViewData["Title"] = "Edit Exercise";
+    ViewData["Description"] = "Modify exercise ";
+    ViewData["Keywords"] = "update, modify, exercise";
 
-    
-    int ex = Convert.ToInt32(ViewData["Exercise"]);
-    WorkoutInfo w = (WorkoutInfo)ViewData["Workout"];
+    string number = Convert.ToString(Model.Weight).Replace(",", "."); ;
 }
 
-<h1>Add Exercise</h1>
-
-<h4>@w.TypeOfWorkout</h4>
-<hr />
+<h1>Edit @Model.Name</h1>
 @if (ViewBag.error != null)
 {
     <div class="alert-danger">@ViewBag.error</div>
 }
+
+<h4>Exercise</h4>
+<hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="AddExercise">
+        <form asp-action="EditExercise">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Category" class="control-label"></label>
-                <select class="form-control" name="Category" id="Category" onchange="categoryChange()">
-                    @foreach (var item in Enum.GetValues(typeof(Category)))
-                    {
-                        <option value="@item">@item</option>
-                    }
-                </select>
+                <input asp-for="ExerciseId" class="form-control" type="hidden" value="@Model.ExerciseId" />
+                <span asp-validation-for="ExerciseId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -37,10 +30,26 @@
                 </select>
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="Category" class="control-label"></label>
+                <select class="form-control" name="Category" id="Category" onchange="categoryChange()">
+                    @foreach (var item in Enum.GetValues(typeof(Category)))
+                    {
+                        if (Model.Category == item.ToString())
+                        {
+                            <option value="@item" selected>@item</option>
+                        }
+                        else
+                        {
+                            <option value="@item">@item</option>
+                        }
 
+                    }
+                </select>
+            </div>
             <div class="form-group">
                 <label asp-for="Weight" class="control-label" id="WeightLabel"></label>
-                <input asp-for="Weight" class="form-control" />
+                <input asp-for="Weight" class="form-control" value="@number"/>
                 <span asp-validation-for="Weight" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -49,14 +58,18 @@
                 <span asp-validation-for="Muscle" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input asp-for="Workout" class="form-control" type="hidden" value="@ex" />
+                <input asp-for="Workout" class="form-control" type="hidden" value="@Model.Workout" />
                 <span asp-validation-for="Workout" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
+</div>
+
+<div>
+    <a asp-action="Exercise" asp-route-id="@Model.ExerciseId">Back to Exercise</a>
 </div>
 <script>
     window.onload = (event) => {
@@ -72,7 +85,12 @@
             success: function (response) {
                 $('#Name').empty();
                 $.each(response, function (index, item) {
-                    $('#Name').append('<option value="' + item + '">' + item + '</option>')
+                    if (item == "@Model.Name") {
+                        $('#Name').append('<option value="' + item + '" selected >' + item + '</option>')
+                    }
+                    else {
+                        $('#Name').append('<option value="' + item + '" >' + item + '</option>')
+                    }
                 })
             }
 
@@ -88,13 +106,8 @@
         }
         populate(cat.value);
     }
-
+    
 </script>
-
-<div>
-    <a asp-action="Workout" asp-route-id="@ex">Back to List</a>
-</div>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
-

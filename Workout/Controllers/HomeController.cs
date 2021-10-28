@@ -62,6 +62,8 @@ namespace Workout.Controllers
             }
             else
             {
+                if (error.Contains(u.UserName)) error = "Username already exists";
+                if (error.Contains(u.Email)) error = "Email already in use";
                 ViewBag.error = error;
                 return View();
             }
@@ -140,18 +142,17 @@ namespace Workout.Controllers
         {
             int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
             if (user == 0) return RedirectToAction(nameof(LogInUser));
-            // DAL
+            
             WorkoutMethods wm = new();
             ExerciseMethods em = new();
-            // Workout
+            
             WorkoutInfo w = wm.GetWorkout(id,user, out string error);
             List<WorkoutInfo> wos = new();
-            if(w.WorkoutId == 0)
+            if(w.WorkoutId == 0) // Check if workout exists
             {
                 return RedirectToAction(nameof(Index));
             }
             wos.Add(w);
-            // Models
             ViewModels vm = new()
             {
                 Workouts = wos,
@@ -202,6 +203,26 @@ namespace Workout.Controllers
 
         }
         [HttpGet]
+        public IActionResult DeleteWorkout(int id)
+        {
+            int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
+            if (user == 0) return RedirectToAction(nameof(LogInUser));
+            WorkoutMethods wm = new();
+            WorkoutInfo w = wm.GetWorkout(id, user, out string error);
+            if (w.WorkoutId == 0)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            int res = wm.DeleteWorkout(id, out string dError);
+            if (res == 1)
+            {
+               return RedirectToAction(nameof(Index));
+            }
+            ViewBag.error = error + dError;
+            
+            return View(w);
+        }
+        [HttpGet]
         public IActionResult AddExercise (int id)
         {
             int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
@@ -226,7 +247,6 @@ namespace Workout.Controllers
             ExerciseMethods em = new();
             Exercise ex = new();
             string weight = fc["Weight"].ToString().Replace(".", ",");
-            ex.ExerciseId = Convert.ToInt32(fc["Workout"]);
             ex.Name = fc["Name"];
             ex.Category = fc["Category"];
             ex.Weight = Convert.ToDecimal(weight);
@@ -254,10 +274,74 @@ namespace Workout.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.error = error;
+            WorkoutInfo work = workouts.First(w => w.WorkoutId == ex.Workout);
+            ViewBag.error = error + wError;
+            ViewData["Workout"] = work;
 
             return View(ex);
         }
+        [HttpGet]
+        public IActionResult EditExercise(int id)
+        {
+            int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
+            if (user == 0) return RedirectToAction(nameof(LogInUser));
+            WorkoutMethods wm = new();
+            List<WorkoutInfo> workouts = wm.GetWorkouts(user, new Models.User(), out string wError);
+            ExerciseMethods em = new();
+            Exercise ex = em.GetExercise(id, out string error);
+            if (!workouts.Any(wo => wo.WorkoutId == ex.Workout))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.error = error + wError;
+            return View(ex);
+        }
+        [HttpPost]
+        public IActionResult EditExercise(IFormCollection fc)
+        {
+            int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
+            if (user == 0) return RedirectToAction(nameof(LogInUser));
+
+            ExerciseMethods em = new();
+            Exercise ex = new();
+            string weight = fc["Weight"].ToString().Replace(".", ",");
+            ex.ExerciseId = Convert.ToInt32(fc["ExerciseId"]);
+            ex.Name = fc["Name"];
+            ex.Category = fc["Category"];
+            ex.Weight = Convert.ToDecimal(weight);
+            ex.Muscle = fc["Muscle"];
+            ex.Workout = Convert.ToInt32(fc["Workout"]);
+           
+
+            int res = em.UpdateExercise(ex, out string error);
+
+            ViewBag.error = error;
+
+            if (res == 1) return RedirectToAction(nameof(Index));
+            return View(ex);
+        }
+        [HttpGet]
+        public IActionResult DeleteExercise(int id)
+        {
+            int user = (int)HttpContext.Session.GetInt32("user").GetValueOrDefault();
+            if (user == 0) return RedirectToAction(nameof(LogInUser));
+            WorkoutMethods wm = new();
+            List<WorkoutInfo> workouts = wm.GetWorkouts(user, new Models.User(), out string wError);
+            ExerciseMethods em = new();
+            Exercise ex = em.GetExercise(id, out string error);
+            if (!workouts.Any(wo => wo.WorkoutId == ex.Workout))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            int res = em.RemoveExercise(id, out string eError);
+            if(res == 1)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.error = error + wError + eError;
+            return View(ex);
+        }
+
         public IActionResult Privacy()
         {
             return View();

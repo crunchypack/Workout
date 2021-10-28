@@ -1,10 +1,16 @@
 ﻿@model Workout.Models.ViewModels
 @{
     ViewData["Title"] = "Workout";
+    ViewData["Description"] = "View workout information add exercises";
+    ViewData["Keywords"] = "workout, exercise";
     var workout = @Model.Workouts.First();
 }
 
 <h1>Workout</h1>
+@if (ViewBag.error != null)
+{
+    <div class="alert-danger">@ViewBag.error</div>
+}
 
 <div class="container">
     <h2>@workout.TypeOfWorkout</h2>
@@ -20,14 +26,65 @@
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">@ex.Category</li>
-                    <li class="list-group-item">@Math.Round(ex.Weight, 2) Kg</li>
+                    @if (ex.Category == "Yoga" || ex.Category == "Cardio")
+                    {
+                        TimeSpan span = TimeSpan.FromMinutes(Convert.ToDouble(ex.Weight));
+                        <li class="list-group-item">@span.ToString("hh\\:mm\\:ss")</li>
+                    }
+                    else
+                    {
+                        <li class="list-group-item">@Math.Round(ex.Weight, 2) Kg</li>
+                    }
+
                     <li class="list-group-item">@ex.Muscle</li>
                 </ul>
             </div>
         }
     </div>
-    <a href="/Home/AddExercise/@workout.WorkoutId" class="btn btn-primary">Add Exercise</a>
-    <a href="/Home/EditWorkout/@workout.WorkoutId" class="btn btn-secondary">Edit Workout</a>
+    <hr />
+    <div class="row">
+        <div class="col-12 col-md-8">
+            <a href="/" class="btn btn-info">Return</a>
+        </div>
+        <div class="col-12 col-md-8">
+            <a href="/Home/AddExercise/@workout.WorkoutId" class="btn btn-primary">Add Exercise</a>
+        </div>
+        <div class="col-12 col-md-8">
+            <a href="/Home/EditWorkout/@workout.WorkoutId" class="btn btn-secondary">Edit Workout</a>
+
+        </div>
+        <div class="col-12 col-md-4">
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+                Delete workout
+            </button>
+        </div>
+
+    </div>
+    
+    
 
 </div>
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete @workout.TypeOfWorkout ?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure? All exercises will also be removed. This cannot be undone.
+            </div>
 
+            <div class="form-group">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a asp-action="DeleteWorkout" asp-route-id="@workout.WorkoutId" class="btn btn-danger">Delete</a>
+            </div>
+
+
+        </div>
+    </div>
+</div>

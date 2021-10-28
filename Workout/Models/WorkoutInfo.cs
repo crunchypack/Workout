@@ -12,6 +12,8 @@ namespace Workout.Models
         public int WorkoutId { get; set; }
         [Required]
         public DateTime Date { get; set; }
+        [Required]
+        [Display(Name = "Workout name")]
         public string TypeOfWorkout { get; set; }
         public User User { get; set; }
     }

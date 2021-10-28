@@ -1,7 +1,9 @@
 ﻿@model Workout.Models.ViewModels
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home - Workout";
+    ViewData["Description"] = "Workout user homepage, view workouts or add new.";
+    ViewData["Keywords"] = "user, start, workout, exercise";
 }
 @if (ViewBag.error != null)
 {
@@ -12,7 +14,7 @@
         @foreach (var item in Model.Users)
         {
             <h1>@item.UserName</h1>
-            <p>@item.Email</p>
+            
             <a asp-action="CreateWorkout" class="btn btn-outline-info">Add new workout</a>
             <a asp-action="Logout" class="btn btn-dark">Logout</a>
             <!-- Button trigger modal -->

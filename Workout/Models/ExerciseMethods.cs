@@ -94,7 +94,7 @@ namespace Workout.Models
             {
                 conn.Open();
                 res = comm.ExecuteNonQuery();
-                if (res != 1) error = "Unable to remove exercice";
+                if (res != 1) error = "Unable to update exercice";
                 return res;
 
             }

@@ -1,12 +1,14 @@
-﻿
+﻿@model Workout.Models.WorkoutInfo
 @{
     ViewData["Title"] = "Error deleting";
     ViewData["Description"] = "Error when trying to delete";
     ViewData["Keywords"] = "error, delete";
 }
+
+<h1>Delete Workout</h1>
 @if (ViewBag.error != null)
 {
     <div class="alert-danger">@ViewBag.error</div>
 }
-<a asp-action="Index">Return</a>
+<a asp-action="Workout" asp-route-id="@Model.WorkoutId">Return to workout</a>
 
